@@ -1,7 +1,7 @@
 """
 批量获取微信公众号专辑文章链接
 """
-import subprocess
+import urllib.request
 import json
 import os
 import time
@@ -23,11 +23,16 @@ def fetch_album_articles(biz, album_id, auth_params=None):
     begin_msgid = ""
     page = 0
 
+    headers = {
+        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) "
+                      "AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 "
+                      "MicroMessenger/8.0.38"
+    }
+
     while True:
         page += 1
 
         if begin_msgid and auth_params:
-            # 翻页请求（需要认证参数）
             url = (
                 f"https://mp.weixin.qq.com/mp/appmsgalbum?action=getalbum"
                 f"&__biz={biz}&album_id={album_id}&count=10"
@@ -38,15 +43,11 @@ def fetch_album_articles(biz, album_id, auth_params=None):
                 f"&appmsg_token={auth_params['appmsg_token']}&x5=0&f=json"
             )
         else:
-            # 第一页（无需认证）
             url = f"https://mp.weixin.qq.com/mp/appmsgalbum?__biz={biz}&action=getalbum&album_id={album_id}&f=json"
 
-        # 使用 curl 获取
-        tmp_file = "_tmp_resp.json"
-        subprocess.run(["curl.exe", "-s", "-k", "-o", tmp_file, url], timeout=30)
-
-        with open(tmp_file, "r", encoding="utf-8") as f:
-            data = json.load(f)
+        req = urllib.request.Request(url, headers=headers)
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
 
         articles = data.get("getalbum_resp", {}).get("article_list", [])
         continue_flag = data.get("getalbum_resp", {}).get("continue_flag", "0")
@@ -68,11 +69,9 @@ def fetch_album_articles(biz, album_id, auth_params=None):
 
 
 if __name__ == "__main__":
-    # 示例配置
     BIZ = "MzYzOTU1NTUzNw=="
     ALBUM_ID = "4319761724883959819"
 
-    # 认证参数（通过 mitmproxy 抓包获取）
     AUTH = {
         "appmsg_token": "your_token_here",
         "uin": "your_uin_here",
