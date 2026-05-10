@@ -6,7 +6,7 @@ from fetch_html import fetch_html
 from article_parser import parse_article
 from html2md import convert as to_markdown
 
-OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "articles")
+OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "articles")
 
 
 def convert_article(url):
