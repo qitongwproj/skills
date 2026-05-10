@@ -1,6 +1,6 @@
 ---
 name: "wechat-article-fetcher"
-description: "Fetches WeChat official account album articles and converts to Markdown. Invoke when user provides a WeChat album URL or wants to extract articles from mp.weixin.qq.com."
+description: "Fetch WeChat official account articles (微信公众号文章) from mp.weixin.qq.com and convert to Markdown. Use this skill whenever the user provides a WeChat article URL, wants to extract or save WeChat articles, mentions 微信文章 or 公众号文章, needs to batch download articles from a WeChat album, or wants to parse WeChat article content into structured text. Supports individual article URLs and album URLs. All modules are independent — fetch HTML, parse content, and convert to Markdown can be used separately."
 ---
 
 # WeChat Article Fetcher
@@ -10,20 +10,34 @@ Fetch articles from WeChat official account albums and convert to Markdown.
 
 ## Core Capabilities
 
-1. **Extract article links** from WeChat album URLs
-2. **Convert to Markdown** with proper formatting
-3. **Batch processing** for entire albums or multiple single articles
+1. **Extract article links** from WeChat album URLs → `fetch_album.py`
+2. **Fetch article HTML** → `fetch_html.py`
+3. **Parse article structure** (title, author, body) → `article_parser.py`
+4. **Convert HTML to Markdown** → `html2md.py`
+5. **Batch processing** (full pipeline) → `convert_batch.py`
+
+All modules are independent — use only what you need.
 
 
 ## Quick Start: Convert Single Articles
-
-Use `scripts/convert_batch.py` — pure Python stdlib, zero dependencies:
 
 ```bash
 python3 scripts/convert_batch.py
 ```
 
-Edit the `urls` list at the bottom of the script to add article URLs. Output goes to `./articles/`.
+Edit the `urls` list at the bottom. Output goes to `../articles/`.
+
+### Use Individual Modules
+
+```python
+from fetch_html import fetch_html
+from article_parser import parse_article
+from html2md import convert as to_markdown
+
+html = fetch_html(url)              # Step 1: fetch
+article = parse_article(html)       # Step 2: parse (title, author, content_html)
+md = to_markdown(article["content_html"])  # Step 3: convert (optional)
+```
 
 
 ## Workflow (High Freedom)
@@ -77,8 +91,17 @@ Use `scripts/fetch_album.py` or custom implementation with:
 
 ### Step 5: Convert to Markdown
 
-Use `scripts/convert_batch.py` — pure Python stdlib, zero dependencies. Implements a complete
-HTML→Markdown converter using only `urllib.request` + `html.parser`.
+Use `scripts/convert_batch.py` for the full pipeline, or compose individual modules:
+
+```python
+from fetch_html import fetch_html
+from article_parser import parse_article
+from html2md import convert as to_markdown
+
+html = fetch_html(url)
+article = parse_article(html)
+md = to_markdown(article["content_html"])
+```
 
 
 ## Key Technical Details
@@ -107,16 +130,9 @@ HTML→Markdown converter using only `urllib.request` + `html.parser`.
 
 | Script | Purpose | Dependencies |
 |--------|---------|-------------|
-| `scripts/convert_batch.py` | Batch convert article URLs to Markdown | **None** (pure stdlib) |
+| `scripts/fetch_html.py` | Fetch raw HTML from article URL | **None** (pure stdlib) |
+| `scripts/article_parser.py` | Parse article: title, author, content HTML | **None** (pure stdlib) |
+| `scripts/html2md.py` | Convert HTML content to Markdown | **None** (pure stdlib) |
+| `scripts/convert_batch.py` | Orchestrate fetch → parse → convert → save | **None** (pure stdlib) |
 | `scripts/fetch_album.py` | Batch fetch article links from album | **None** (pure stdlib) |
 | `scripts/mitm_capture.py` | mitmproxy capture script for auth params | `mitmproxy` |
-
-
-## Output Structure
-
-```
-./
-├── article_links/     # Article URLs (JSON) — output to ../article_links/
-├── articles/          # Markdown files — output to ../articles/
-└── scripts/           # Helper scripts
-```
