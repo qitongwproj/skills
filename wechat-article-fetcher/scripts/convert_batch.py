@@ -6,7 +6,7 @@ from fetch_html import fetch_html
 from article_parser import parse_article
 from html2md import convert as to_markdown
 
-OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "articles")
+OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "articles")
 
 
 def convert_article(url):
@@ -40,8 +40,7 @@ def convert_article(url):
 
 def main():
     urls = [
-        "https://mp.weixin.qq.com/s/rB_0TEbhOXECvI84ejlenw",
-        "https://mp.weixin.qq.com/s/Zs-rAQjOLm0iLdfa34AkUg",
+        "https://mp.weixin.qq.com/s/s1-eH1HCypzQlu0TuAy2Rg",
     ]
 
     for url in urls:

@@ -6,7 +6,7 @@ import json
 import os
 import time
 
-OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "articles")
+OUTPUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "articles")
 AUTH_FILE = os.path.join(OUTPUT_DIR, "auth.json")
 
 

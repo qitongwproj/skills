@@ -1,4 +1,6 @@
+import html
 import html.parser
+import re
 
 
 class ArticleParser(html.parser.HTMLParser):
@@ -73,11 +75,46 @@ class ArticleParser(html.parser.HTMLParser):
             self.content_html += f"<{tag}{attr_str}/>"
 
 
+def _parse_new_format(html_content):
+    og_match = re.search(r'og:title"\s*content="([^"]+)', html_content)
+    if not og_match or len(og_match.group(1)) < 20:
+        return None
+
+    raw_text = html.unescape(og_match.group(1))
+    raw_text = raw_text.replace('\\n', '\n')
+    first_sentence = raw_text.split('。')[0].split('\n\n')[0].strip()
+    title = first_sentence[:50] if first_sentence else "未知标题"
+
+    author_match = re.search(r'og:article:author"\s*content="([^"]+)', html_content)
+    author = html.unescape(author_match.group(1)) if author_match else "未知作者"
+
+    paragraphs = [p.strip() for p in raw_text.split('\n\n') if p.strip()]
+    content_html = "<p>" + "</p><p>".join(p.replace('\n', '<br/>') for p in paragraphs) + "</p>"
+
+    return {
+        "title": title,
+        "author": author,
+        "content_html": content_html,
+    }
+
+
 def parse_article(html_content):
     parser = ArticleParser()
     parser.feed(html_content)
+
+    if parser.content_html.strip():
+        return {
+            "title": parser.title.strip() or "未知标题",
+            "author": parser.author.strip() or "未知作者",
+            "content_html": parser.content_html,
+        }
+
+    fallback = _parse_new_format(html_content)
+    if fallback:
+        return fallback
+
     return {
-        "title": parser.title.strip(),
-        "author": parser.author.strip(),
-        "content_html": parser.content_html,
+        "title": "",
+        "author": "",
+        "content_html": "",
     }
