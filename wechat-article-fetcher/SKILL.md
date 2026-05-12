@@ -22,10 +22,15 @@ All modules are independent — use only what you need.
 ## Quick Start: Convert Single Articles
 
 ```bash
-python3 scripts/convert_batch.py
+python3 scripts/convert_batch.py <URL>
 ```
 
-Edit the `urls` list at the bottom. Output goes to `../articles/`.
+Supports multiple URLs at once:
+```bash
+python3 scripts/convert_batch.py URL1 URL2 URL3
+```
+
+Output goes to `../articles/`.
 
 ### Use Individual Modules
 
@@ -113,7 +118,7 @@ md = to_markdown(article["content_html"])
 | **Pagination** | Requires auth params (mitmproxy capture) |
 | **Auth TTL** | Hours (re-capture when expired) |
 | **Rate limit** | 1-2s interval between requests |
-| **Content extraction** | `div#js_content` for article body, `h1#activity-name` for title |
+| **Content extraction** | Primary: `div#js_content` for body, `h1#activity-name` for title. Fallback: `og:title` meta tag (for new-format pages where content is JS-rendered) |
 | **Platform** | All scripts use Python stdlib (`urllib`) — fully cross-platform (Linux / macOS / Windows) |
 
 
@@ -122,7 +127,7 @@ md = to_markdown(article["content_html"])
 | Issue | Solution |
 |-------|----------|
 | "环境异常" / verification required | Use mobile WeChat User-Agent: `Mozilla/5.0 (iPhone; ...) MicroMessenger/8.0.38`. Desktop UAs are blocked. |
-| Title only, no content | Client-side rendered; try alternative methods |
+| Title only, no content | Parser auto-falls back to `og:title` meta tag for new-format pages (JS-rendered content). If still fails, the page may require client-side execution |
 | Images not loading | WeChat CDN requires client environment |
 
 
@@ -131,7 +136,7 @@ md = to_markdown(article["content_html"])
 | Script | Purpose | Dependencies |
 |--------|---------|-------------|
 | `scripts/fetch_html.py` | Fetch raw HTML from article URL | **None** (pure stdlib) |
-| `scripts/article_parser.py` | Parse article: title, author, content HTML | **None** (pure stdlib) |
+| `scripts/article_parser.py` | Parse article: title, author, content HTML. Supports both legacy (`div#js_content`) and new-format (`og:title` meta) WeChat pages | **None** (pure stdlib) |
 | `scripts/html2md.py` | Convert HTML content to Markdown | **None** (pure stdlib) |
 | `scripts/convert_batch.py` | Orchestrate fetch → parse → convert → save | **None** (pure stdlib) |
 | `scripts/fetch_album.py` | Batch fetch article links from album | **None** (pure stdlib) |

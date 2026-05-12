@@ -1,5 +1,6 @@
 import re
 import os
+import sys
 import time
 
 from fetch_html import fetch_html
@@ -39,9 +40,12 @@ def convert_article(url):
 
 
 def main():
-    urls = [
-        "https://mp.weixin.qq.com/s/s1-eH1HCypzQlu0TuAy2Rg",
-    ]
+    if len(sys.argv) < 2:
+        print("用法: python3 convert_batch.py <URL1> [URL2] ...")
+        print("示例: python3 convert_batch.py https://mp.weixin.qq.com/s/xxxxx")
+        sys.exit(1)
+
+    urls = sys.argv[1:]
 
     for url in urls:
         try:
