@@ -1,0 +1,11 @@
+# 微信公众号文章 URL 列表示例
+# 格式: 每行一个 URL，# 开头为注释
+# 从文件读取URL列表 python3 wechat_article_fetcher.py --file <urls.txt>
+
+# 金渐成的文章
+https://mp.weixin.qq.com/s/O0vJ8-Yddzrn6XvyHQWUBA
+https://mp.weixin.qq.com/s/sVb_tq9e9ODIRzP6yn_jNw
+https://mp.weixin.qq.com/s/Xpy2iH-uscpK5daVmGxyMQ
+https://mp.weixin.qq.com/s/IlYQmRtrvG9rAal_YfUgiA
+https://mp.weixin.qq.com/s/IGaYSIBaCKujzT86P2ecYQ
+https://mp.weixin.qq.com/s/l1He9qazVxjSrPayyO_1jQ
